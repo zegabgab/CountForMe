@@ -11,14 +11,15 @@ fn main() {
     let n: u32 = input.trim().parse().expect("Please enter a number, thank you <3");
 
     let mut list = ListLinked::<u32>::new();
+    list.add(1, 0);
+    list.add(3, 1);
+    list.add(0, 0);
+    list.add(2, 2);
 
-    for i in 0..=n {
-        list.add(fibonacci(i), i);
-    }
-
-    for i in (0..=n).rev() {
+    
+    for i in 0..=3 {
         match list.get(i) {
-            Ok(value) => println!("F({i}) = {}", value),
+            Ok(value) => println!("{value}"),
             Err(msg) => println!("Error: {msg}")
         }
     }

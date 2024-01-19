@@ -40,11 +40,12 @@ impl<T> LinkedNode<T> {
         }
     }
 
-    fn add(&mut self, value: T, index: u32, current: u32) {
+    fn add(&mut self, mut value: T, index: u32, current: u32) {
         match index - current {
             0 => {
                 let mut next = None;
                 std::mem::swap(&mut self.next, &mut next);
+                std::mem::swap(&mut value, &mut self.value);
                 self.next = Some(Box::new(LinkedNode {value, next}));
             }
             _ => match &mut self.next {
