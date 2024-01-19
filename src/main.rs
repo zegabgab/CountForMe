@@ -1,42 +1,25 @@
+mod linked_list;
+mod fibonacci;
+
+use linked_list::ListLinked;
+use fibonacci::*;
+
 fn main() {
-    println!("Input a bracket expression:");
+    println!("Input a natural number:");
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("Error reading line");
+    let n: u32 = input.trim().parse().expect("Please enter a number, thank you <3");
 
-    println!("{}", term(&input.trim().as_bytes(), 0).0);
-}
+    let mut list = ListLinked::<u32>::new();
 
-fn term(input: &[u8], index: usize) -> (bool, usize) {
-    match index < input.len() {
-        true => match parentheses(input, index) {
-            (false, _) => (false, index),
-            (true, len) => (len == input.len(), len)
-        },
-        false => (false, index)
+    for i in 0..=n {
+        list.add(fibonacci(i), i);
     }
-}
 
-fn parentheses(input: &[u8], index: usize) -> (bool, usize) {
-    let compound = compound(input, index);
-    let empty = empty(input, index);
-    match compound.0 {
-        true => compound,
-        false => empty
-    }
-}
-
-fn empty(input: &[u8], index: usize) -> (bool, usize) {
-    (index <= input.len(), index)
-}
-
-fn compound(input: &[u8], index: usize) -> (bool, usize) {
-    if index >= input.len() || input[index] != b'(' {
-        return (false, index);
-    }
-    let intermediate = parentheses(input, index + 1);
-    if !intermediate.0 || intermediate.1 >= input.len() || input[intermediate.1] != b')' {
-        (false, index)
-    } else {
-        parentheses(input, intermediate.1 + 1)
+    for i in (0..=n).rev() {
+        match list.get(i) {
+            Ok(value) => println!("F({i}) = {}", value),
+            Err(msg) => println!("Error: {msg}")
+        }
     }
 }
