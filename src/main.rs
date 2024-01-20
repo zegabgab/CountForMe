@@ -1,8 +1,10 @@
 mod linked_list;
 mod fibonacci;
+mod syntax_tree;
 
 use linked_list::ListLinked;
 use fibonacci::*;
+use syntax_tree::SyntaxTree;
 
 fn main() {
     println!("Input a natural number:");
@@ -10,17 +12,14 @@ fn main() {
     std::io::stdin().read_line(&mut input).expect("Error reading line");
     let n: u32 = input.trim().parse().expect("Please enter a number, thank you <3");
 
-    let mut list = ListLinked::<u32>::new();
-    list.add(1, 0);
-    list.add(3, 1);
-    list.add(0, 0);
-    list.add(2, 2);
-
-    
-    for i in 0..=3 {
-        match list.get(i) {
-            Ok(value) => println!("{value}"),
-            Err(msg) => println!("Error: {msg}")
-        }
-    }
+    let tree = SyntaxTree::Twig(
+        "sentence",
+        vec![
+            Box::new(SyntaxTree::Leaf("i")),
+            Box::new(SyntaxTree::Leaf("am")),
+            Box::new(SyntaxTree::Leaf("trying")),
+            Box::new(SyntaxTree::Leaf("here")),
+            Box::new(SyntaxTree::Leaf("!"))
+        ]
+    );
 }
