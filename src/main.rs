@@ -7,19 +7,14 @@ use fibonacci::*;
 use syntax_tree::SyntaxTree;
 
 fn main() {
-    println!("Input a natural number:");
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Error reading line");
-    let n: u32 = input.trim().parse().expect("Please enter a number, thank you <3");
-
-    let tree = SyntaxTree::Twig(
-        "sentence",
+    let mut tree = SyntaxTree::new_with_children(
+        "another_sentence",
         vec![
-            Box::new(SyntaxTree::Leaf("i")),
-            Box::new(SyntaxTree::Leaf("am")),
-            Box::new(SyntaxTree::Leaf("trying")),
-            Box::new(SyntaxTree::Leaf("here")),
-            Box::new(SyntaxTree::Leaf("!"))
-        ]
+            SyntaxTree::new("we"),
+            SyntaxTree::new("are"),
+            SyntaxTree::new("getting"),
+            SyntaxTree::new("there")]
     );
+    tree.child_as_mutable(0).add_child(SyntaxTree::new("by which i mean, i"));
+    println!("{tree}");
 }
