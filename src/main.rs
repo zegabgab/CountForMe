@@ -17,4 +17,12 @@ fn main() {
     );
     tree.child_as_mutable(0).add_child(SyntaxTree::new("by which i mean, i"));
     println!("{tree}");
+    let mut list = ListLinked::new();
+    for i in 0..10 {
+        list.add(fibonacci(i), i);
+    }
+
+    for f in list.iter() {
+        println!("{f}");
+    }
 }

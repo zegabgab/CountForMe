@@ -1,5 +1,5 @@
 pub struct ListLinked<T> {
-    start: Option<LinkedNode<T>>
+    start: Option<Box<LinkedNode<T>>>
 }
 
 struct LinkedNode<T> {
@@ -23,8 +23,14 @@ impl<T> ListLinked<T> {
 
     pub fn add(&mut self, value: T, index: u32) {
         match &mut self.start {
-            None => {self.start = Some(LinkedNode {next: None, value}); }
+            None => {self.start = Some(Box::new(LinkedNode {next: None, value})); }
             Some(node) => {node.add(value, index, 0); }
+        }
+    }
+
+    pub fn iter(&self) -> LinkedIterator<T> {
+        LinkedIterator {
+            current: &self.start
         }
     }
 }
@@ -51,6 +57,25 @@ impl<T> LinkedNode<T> {
             _ => match &mut self.next {
                 None => self.next = Some(Box::new(LinkedNode {value, next: None})),
                 Some(node) => node.add(value, index, current + 1)
+            }
+        }
+    }
+}
+
+pub struct LinkedIterator<'a, T> {
+    current: &'a Option<Box<LinkedNode<T>>>
+}
+
+impl<'a, T> Iterator for LinkedIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.current {
+            None => None,
+            Some(node) => {
+                let result = &node.value;
+                self.current = &node.next;
+                Some(result)
             }
         }
     }
