@@ -7,22 +7,14 @@ use fibonacci::*;
 use syntax_tree::SyntaxTree;
 
 fn main() {
-    let mut tree = SyntaxTree::new_with_children(
-        "another_sentence",
+    let tree = SyntaxTree::new_with_children(
+        "term",
         vec![
-            SyntaxTree::new("we"),
-            SyntaxTree::new("are"),
-            SyntaxTree::new("getting"),
-            SyntaxTree::new("there")]
+            SyntaxTree::new("("),
+            SyntaxTree::new("5"),
+            SyntaxTree::new("/"),
+            SyntaxTree::new("0"),
+            SyntaxTree::new(")")]
     );
-    tree.child_as_mutable(0).add_child(SyntaxTree::new("by which i mean, i"));
     println!("{tree}");
-    let mut list = ListLinked::new();
-    for i in 0..10 {
-        list.add(fibonacci(i), i);
-    }
-
-    for f in list.iter() {
-        println!("{f}");
-    }
 }
