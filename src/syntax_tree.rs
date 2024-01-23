@@ -11,7 +11,7 @@ impl SyntaxTree {
         }
     }
 
-    pub fn new_with_children(name: &str, children: Vec<SyntaxTree>) -> SyntaxTree {
+    pub fn with_children(name: &str, children: Vec<SyntaxTree>) -> SyntaxTree {
         SyntaxTree {
             name: String::from(name),
             children

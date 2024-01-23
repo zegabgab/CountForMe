@@ -7,7 +7,7 @@ use fibonacci::*;
 use syntax_tree::SyntaxTree;
 
 fn main() {
-    let tree = SyntaxTree::new_with_children(
+    let tree = SyntaxTree::with_children(
         "term",
         vec![
             SyntaxTree::new("("),
