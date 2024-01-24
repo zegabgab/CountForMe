@@ -21,23 +21,23 @@ pub fn parse_term(input: &Vec<String>) -> Option<SyntaxTree> {
             production: Production { components: vec![String::from("Term"), String::from("+"), String::from("Term")] }
         }
     ];
-    let mut syntaxed_input: Vec<SyntaxTree> = input.iter().map(|s| SyntaxTree::new(s)).collect();
-    let mut last_count = syntaxed_input.len();
+    let mut syntaxed_input: (Vec<SyntaxTree>, bool) = (input.iter().map(|s| SyntaxTree::new(s)).collect(), true);
 
-    while syntaxed_input.len() > 1 {
-        syntaxed_input = parse_partial(syntaxed_input, &rules);
-        if syntaxed_input.len() == last_count {
-            return None;
+    loop {
+        syntaxed_input = parse_partial(syntaxed_input.0, &rules);
+        if !syntaxed_input.1 {
+            break None;
+        } else if syntaxed_input.0.len() == 1 && syntaxed_input.0[0].name() == "Term"{
+            break Some(syntaxed_input.0.remove(0));
         }
-        last_count = syntaxed_input.len();
     }
-    Some(syntaxed_input.remove(0))
 }
 
-fn parse_partial(mut input: Vec<SyntaxTree>, rules: &[GrammarRule]) -> Vec<SyntaxTree> {
+fn parse_partial(mut input: Vec<SyntaxTree>, rules: &[GrammarRule]) -> (Vec<SyntaxTree>, bool) {
     let mut result = Vec::new();
     let iter = input.iter();
     let iter_2 = iter.clone();
+    let mut progress = false;
     while input.len() > 0 {
         let mut match_found = false;
         for rule in rules {
@@ -52,6 +52,7 @@ fn parse_partial(mut input: Vec<SyntaxTree>, rules: &[GrammarRule]) -> Vec<Synta
                 match_found = false;
             }
             if match_found {
+                progress = true;
                 let mut components = Vec::new();
                 for _ in 0..rule.production.components.len() {
                     components.push(input.remove(0));
@@ -64,7 +65,7 @@ fn parse_partial(mut input: Vec<SyntaxTree>, rules: &[GrammarRule]) -> Vec<Synta
             result.push(input.remove(0));
         }
     }
-    result
+(result, progress)
 }
 
 pub struct GrammarRule {
