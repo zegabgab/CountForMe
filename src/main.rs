@@ -1,26 +1,31 @@
-mod linked_list;
-mod fibonacci;
 mod syntax_tree;
 mod parse;
+mod process_input;
 
-use std::env;
-
-use linked_list::ListLinked;
-use fibonacci::*;
 use syntax_tree::SyntaxTree;
 
 fn main() {
-    let input = vec![
-        String::from("("),
-        String::from("banana"),
-        String::from("+"),
-        String::from("banana"),
-        String::from(")")
-    ];
-    let input = env::args().skip(1).map(|s| String::from(s)).collect();
+    let mut args = main_args::parse_args();
+    let mut running = true;
+    while running {
+        let _ = process_input::process(args.reader(), &mut running);
+    }
+}
 
-    match parse::parse_term(&input) {
-        None => println!("no banana"),
-        Some(result) => println!("{result}")
+mod main_args {
+    pub struct Args {
+        reader: Box<dyn std::io::BufRead>
+    }
+
+    pub fn parse_args() -> Args {
+        Args {
+            reader: Box::new(std::io::stdin().lock())
+        }
+    }
+
+    impl Args {
+        pub fn reader(&mut self) -> &mut impl std::io::BufRead {
+            &mut self.reader
+        }
     }
 }
