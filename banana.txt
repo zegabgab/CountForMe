@@ -1,0 +1,7 @@
+expr <- num / calc / par
+calc <- expr + expr / expr - subcompat / multcompat \/ divcompat / multcompat * multcompat
+subcompat <- num / par
+multcompat <- num / par / multcompat * multcompat
+divcompat <- num / par
+par <- "(" expr ")"
+num <- "banana"
