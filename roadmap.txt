@@ -2,3 +2,7 @@ Calculator REPL:
     Evaluate expressions
     Assign variables
     Assign functions
+
+Todo:
+    Calculation model for banana
+    Program skeleton
