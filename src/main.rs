@@ -1,8 +1,4 @@
-mod syntax_tree;
-mod parse;
 mod process_input;
-
-use syntax_tree::SyntaxTree;
 
 fn main() {
     let mut args = main_args::parse_args();
