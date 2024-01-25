@@ -1,0 +1,4 @@
+Calculator REPL:
+    Evaluate expressions
+    Assign variables
+    Assign functions
