@@ -1,6 +1,7 @@
 use self::parse::SyntaxTree;
 
 mod parse;
+mod lexer;
 
 pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<(), ()> {
     let mut line = String::new();
@@ -16,7 +17,7 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         *running = false;
         println!("Empty line detected, closing...")
     } else {
-        print!("Echoing {line}");
+        print!("{line}");
     }
     Ok(())
 }
