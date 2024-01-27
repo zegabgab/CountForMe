@@ -16,8 +16,12 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         *running = false;
         return Err(());
     }
-    for token in lexer {
-        println!("{token}");
+    let tokens: Vec<String> = lexer.collect();
+    if tokens.is_empty() {
+        println!("Blank line entered, closing...");
+        *running = false;
+    } else {
+        println!("{:?}", tokens);
     }
     Ok(())
 }

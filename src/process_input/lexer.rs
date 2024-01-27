@@ -7,7 +7,7 @@ enum CharType {
 
 fn kind(character: &char) -> CharType {
     match character {
-        ' ' | '\n' => CharType::Whitespace,
+        ' ' | '\n' | '\r' => CharType::Whitespace,
         'a'..='z' | 'A'..='Z' | '0'..='9' => CharType::Word,
         _ => CharType::Special
     }
@@ -35,7 +35,7 @@ impl<T: std::iter::Iterator<Item = char>> Iterator for Lexer<T> {
                 result.push(c);
             }
             if eject(c, self.source.peek()) {
-                return Some(result);
+                break;
             }
             current = self.source.next();
         }
