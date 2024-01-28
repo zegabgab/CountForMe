@@ -6,8 +6,10 @@ enum CharType {
 }
 
 fn kind(character: &char) -> CharType {
+    if character.is_whitespace() {
+        return CharType::Whitespace;
+    }
     match character {
-        ' ' | '\n' | '\r' => CharType::Whitespace,
         'a'..='z' | 'A'..='Z' | '0'..='9' => CharType::Word,
         _ => CharType::Special
     }

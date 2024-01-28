@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct SyntaxTree {
     name: String,
     children: Vec<Self>
@@ -41,4 +42,8 @@ impl std::fmt::Display for SyntaxTree {
         }
         write!(f, "]")
     }
+}
+
+pub fn earley_parse(source: impl Iterator<Item = String>) -> SyntaxTree {
+    SyntaxTree::with_children("Not implemented yet", source.map(|s| SyntaxTree::new(&s)).collect())
 }

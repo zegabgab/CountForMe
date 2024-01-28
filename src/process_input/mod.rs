@@ -9,7 +9,7 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
     let tree = SyntaxTree::with_children("test", vec![SyntaxTree::new("more test")]);
     let _ = tree.name();
 
-    let lexer = lexer::Lexer::new(line.drain(..));
+    let lexer = lexer::Lexer::new(line.chars());
 
     if let Err(_) = read {
         eprintln!("Error while reading");
@@ -21,7 +21,7 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         println!("Blank line entered, closing...");
         *running = false;
     } else {
-        println!("{:?}", tokens);
+        println!("{}", parse::earley_parse(tokens.into_iter()));
     }
     Ok(())
 }
