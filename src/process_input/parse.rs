@@ -35,15 +35,53 @@ impl SyntaxTree {
 impl std::fmt::Display for SyntaxTree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.name)?;
-        if self.is_leaf() { return Ok(()); }
-        write!(f, "[{}", self.child(0))?;
-        for child in self.children.iter().skip(1) {
-            write!(f, ", {child}")?;
+        let mut iter = self.children.iter();
+        match iter.next() {
+            None => Ok(()),
+            Some(child) => {
+                write!(f, "[{}", child)?;
+                for child in iter  {
+                    write!(f, ", {child}")?;
+                }
+                write!(f, "]")
+            }
         }
-        write!(f, "]")
     }
 }
 
 pub fn earley_parse(source: impl Iterator<Item = String>) -> SyntaxTree {
     SyntaxTree::with_children("Not implemented yet", source.map(|s| SyntaxTree::new(&s)).collect())
+}
+
+#[derive(Debug, Clone)]
+enum Symbol {
+    Terminal(String),
+    Nonterminal(String)
+}
+
+struct EarleyItem<'a> {
+    rule: &'a GrammarRule,
+    start: usize,
+    big_fat_dot: usize,
+}
+
+impl<'a> EarleyItem<'a> {
+    pub fn new(rule: &GrammarRule, start: usize) -> EarleyItem {
+        EarleyItem {
+            rule, start, big_fat_dot: 0
+        }
+    }
+
+    pub fn next_unparsed(&self) -> Option<&String> {
+        self.rule.components.get(self.big_fat_dot)
+    }
+
+    fn advanced(&self) -> EarleyItem {
+        EarleyItem { big_fat_dot: self.big_fat_dot + 1, ..*self }
+    }
+}
+
+struct GrammarRule {
+    name: String,
+    components: Vec<String>
 }
