@@ -49,16 +49,61 @@ impl std::fmt::Display for SyntaxTree {
     }
 }
 
-pub fn earley_parse(source: impl Iterator<Item = String>) -> SyntaxTree {
-    SyntaxTree::with_children("Not implemented yet", source.map(|s| SyntaxTree::new(&s)).collect())
+pub fn earley_parse(source: impl Iterator<Item = String>, grammar: Vec<GrammarRule>) -> Option<SyntaxTree> {
+    if grammar.is_empty() { return None; }
+    let mut sets = Vec::new();
+    let mut source = source.enumerate().peekable();
+    sets.push(Vec::new());
+    for r in grammar.iter().filter(|r| r.name == grammar[0].name) {
+        sets[0].push(EarleyItem::new(r, 0));
+    }
+
+    for (i, token) in source {
+        let set = &mut sets[i];
+        for item in set {
+            set.push(item.advanced());
+            match item.next_unparsed() {
+                None => complete(),
+                Some(item) => {
+                    match item {
+                        Symbol::Terminal(symbol) => scan(),
+                        Symbol::Nonterminal(symbol) => predict()
+                    }
+                }
+            }
+        }
+    }
+    None
 }
 
-#[derive(Debug, Clone)]
+fn predict() {
+    todo!()
+}
+
+fn scan() {
+    todo!()
+}
+
+fn complete() {
+    todo!()
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Symbol {
     Terminal(String),
     Nonterminal(String)
 }
 
+impl Symbol {
+    fn matches(&self, token: &str) -> bool {
+        match self {
+            Symbol::Terminal(s) => s == token,
+            Symbol::Nonterminal(s) => s == token,
+        }
+    }
+}
+
+#[derive(PartialEq, Eq)]
 struct EarleyItem<'a> {
     rule: &'a GrammarRule,
     start: usize,
@@ -72,7 +117,7 @@ impl<'a> EarleyItem<'a> {
         }
     }
 
-    pub fn next_unparsed(&self) -> Option<&String> {
+    pub fn next_unparsed(&self) -> Option<&Symbol> {
         self.rule.components.get(self.big_fat_dot)
     }
 
@@ -81,7 +126,10 @@ impl<'a> EarleyItem<'a> {
     }
 }
 
+#[derive(PartialEq, Eq)]
 struct GrammarRule {
     name: String,
-    components: Vec<String>
+    components: Vec<Symbol>
 }
+
+type StateSet<'a> = Vec<EarleyItem<'a>>;

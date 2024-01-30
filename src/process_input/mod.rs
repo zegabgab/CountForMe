@@ -21,7 +21,7 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         println!("Blank line entered, closing...");
         *running = false;
     } else {
-        println!("{}", parse::earley_parse(tokens.into_iter()));
+        println!("{:?}", tokens);
     }
     Ok(())
 }
