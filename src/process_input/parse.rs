@@ -55,21 +55,17 @@ pub fn earley_parse(source: impl Iterator<Item = String>, grammar: Vec<GrammarRu
     let mut source = source.enumerate().peekable();
     sets.push(Vec::new());
     for r in grammar.iter().filter(|r| r.name == grammar[0].name) {
-        sets[0].push(EarleyItem::new(r, 0));
+        let first = &mut sets[0];
+        first.push(EarleyItem::new(r, 0));
     }
 
     for (i, token) in source {
-        let set = &mut sets[i];
-        for item in set {
-            set.push(item.advanced());
+        let mut set: StateSet = Vec::new();
+        for item in &sets[i] {
             match item.next_unparsed() {
                 None => complete(),
-                Some(item) => {
-                    match item {
-                        Symbol::Terminal(symbol) => scan(),
-                        Symbol::Nonterminal(symbol) => predict()
-                    }
-                }
+                Some(Symbol::Nonterminal(symbol)) => predict(),
+                Some(Symbol::Terminal(symbol)) => scan()
             }
         }
     }
