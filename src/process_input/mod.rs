@@ -1,4 +1,4 @@
-use self::parse::SyntaxTree;
+use self::parse::{Symbol, SyntaxTree};
 
 mod parse;
 mod lexer;
@@ -9,19 +9,31 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
     let tree = SyntaxTree::with_children("test", vec![SyntaxTree::new("more test")]);
     let _ = tree.name();
 
-    let lexer = lexer::Lexer::new(line.chars());
+    let lexer = lexer::Lexer::new(line.trim().chars());
+    let grammar = vec![
+        parse::GrammarRule {
+            name : "Parens".to_string(), 
+            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal(")".to_string())]
+        },
+        parse::GrammarRule {
+            name: "Parens".to_string(),
+            components: vec![Symbol::Terminal("(".to_string()), Symbol::Nonterminal("Parens".to_string()), Symbol::Terminal(")".to_string())]
+        },
+        parse::GrammarRule {
+            name: "Parens".to_string(),
+            components: vec![Symbol::Nonterminal("Parens".to_string()), Symbol::Nonterminal("Parens".to_string()), ]
+        }
+    ];
 
     if let Err(_) = read {
         eprintln!("Error while reading");
         *running = false;
         return Err(());
     }
-    let tokens: Vec<String> = lexer.collect();
-    if tokens.is_empty() {
-        println!("Blank line entered, closing...");
-        *running = false;
+    if parse::recognized(&parse::earley_table(lexer, &grammar), "Parens") {
+        println!("Bracket expression found!");
     } else {
-        println!("{:?}", tokens);
+        println!("No valid bracket expression found");
     }
     Ok(())
 }
