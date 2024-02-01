@@ -10,27 +10,13 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
     let _ = tree.name();
 
     let lexer = lexer::Lexer::new(line.trim().chars());
+    use parse::GrammarRule;
     let grammar = vec![
-        parse::GrammarRule {
-            name : "Parens".to_string(), 
-            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal(")".to_string())]
-        },
-        parse::GrammarRule {
-            name: "Parens".to_string(),
-            components: vec![Symbol::Terminal("(".to_string()), Symbol::Nonterminal("Parens".to_string()), Symbol::Terminal(")".to_string())]
-        },
-        parse::GrammarRule {
-            name: "Parens".to_string(),
-            components: vec![Symbol::Nonterminal("Parens".to_string()), Symbol::Nonterminal("Parens".to_string()), ]
-        },
-        parse::GrammarRule {
-            name: "Parens".to_string(),
-            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal("banana".to_string()), Symbol::Terminal(")".to_string())]
-        },
-        parse::GrammarRule {
-            name: "Parens".to_string(),
-            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal("ananab".to_string()), Symbol::Terminal(")".to_string())]
-        }
+        GrammarRule::new("Parens", &[Symbol::Terminal("(".to_string()), Symbol::Terminal(")".to_string())]),
+        GrammarRule::new("Parens", &[Symbol::Terminal("(".to_string()), Symbol::Nonterminal("Parens".to_string()), Symbol::Terminal(")".to_string())]),
+        GrammarRule::new("Parens", &[Symbol::Nonterminal("Parens".to_string()), Symbol::Nonterminal("Parens".to_string())]),
+        GrammarRule::new("Parens", &[Symbol::Terminal("(".to_string()), Symbol::Terminal("banana".to_string()), Symbol::Terminal(")".to_string())]),
+        GrammarRule::new("Parens", &[Symbol::Terminal("(".to_string()), Symbol::Terminal("ananab".to_string()), Symbol::Terminal(")".to_string())]),
     ];
 
     if let Err(_) = read {

@@ -26,17 +26,9 @@ impl SyntaxTree {
             children
         }
     }
-    
-    pub fn is_leaf(&self) -> bool {
-        self.children.len() == 0
-    }
 
     pub fn name(&self) -> &str {
         &self.name
-    }
-
-    pub fn child(&self, index: usize) -> &SyntaxTree {
-        &self.children[index]
     }
 }
 
@@ -79,7 +71,7 @@ pub struct GrammarRule {
 }
 
 impl GrammarRule {
-    fn new(name: &str, components: &[Symbol]) -> GrammarRule {
+    pub fn new(name: &str, components: &[Symbol]) -> GrammarRule {
         GrammarRule {
             name: name.to_string(), components: components.to_vec()
         }

@@ -21,7 +21,7 @@ pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[Grammar
 }
 
 fn earley_table(mut source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> EarleyTable {
-    let mut token = source.next();
+    let token = source.next();
     let mut s = EarleyTable::new();
     if token == None || grammar.is_empty() { return s; }
     s.push(
