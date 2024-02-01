@@ -22,6 +22,10 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         parse::GrammarRule {
             name: "Parens".to_string(),
             components: vec![Symbol::Nonterminal("Parens".to_string()), Symbol::Nonterminal("Parens".to_string()), ]
+        },
+        parse::GrammarRule {
+            name: "Parens".to_string(),
+            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal("banana".to_string()), Symbol::Terminal(")".to_string())]
         }
     ];
 
@@ -29,6 +33,11 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         eprintln!("Error while reading");
         *running = false;
         return Err(());
+    }
+    if parse::recognize(lexer, &grammar) {
+        println!("Banana expression found!");
+    } else {
+        println!("No valid expression found");
     }
     Ok(())
 }

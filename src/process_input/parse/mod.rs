@@ -1,4 +1,10 @@
+use self::earley::earley_recognize;
+
 mod earley;
+
+pub fn recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
+    earley_recognize(source, grammar)
+}
 
 #[derive(Debug, Clone)]
 pub struct SyntaxTree {
