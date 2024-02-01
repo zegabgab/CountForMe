@@ -30,10 +30,5 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         *running = false;
         return Err(());
     }
-    if parse::recognized(&parse::earley_table(lexer, &grammar), "Parens") {
-        println!("Bracket expression found!");
-    } else {
-        println!("No valid bracket expression found");
-    }
     Ok(())
 }
