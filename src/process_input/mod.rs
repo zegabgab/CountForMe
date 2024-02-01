@@ -26,6 +26,10 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
         parse::GrammarRule {
             name: "Parens".to_string(),
             components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal("banana".to_string()), Symbol::Terminal(")".to_string())]
+        },
+        parse::GrammarRule {
+            name: "Parens".to_string(),
+            components: vec![Symbol::Terminal("(".to_string()), Symbol::Terminal("ananab".to_string()), Symbol::Terminal(")".to_string())]
         }
     ];
 
