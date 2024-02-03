@@ -6,3 +6,5 @@ Calculator REPL:
 Todo:
     Calculation model for banana
     Program skeleton
+    Parser
+        Referencify: Rust is fast, but not my Rust (yet)

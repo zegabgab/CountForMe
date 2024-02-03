@@ -1,14 +1,14 @@
 use super::{GrammarRule, Symbol};
 
 #[derive(PartialEq, Eq)]
-struct EarleyItem {
-    rule: GrammarRule,
+struct EarleyItem<'a> {
+    rule: &'a GrammarRule,
     start: usize,
     current: usize,
 }
 
-type StateSet = Vec<EarleyItem>;
-type EarleyTable = Vec<(Option<String>, StateSet)>;
+type StateSet<'a> = Vec<EarleyItem<'a>>;
+type EarleyTable<'a> = Vec<(Option<String>, StateSet<'a>)>;
 
 pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
     let table = earley_table(source, grammar);
@@ -77,16 +77,16 @@ fn complete(s: &mut [(Option<String>, Vec<EarleyItem>)], i: usize, j: usize) {
     let _ = std::mem::replace(&mut s[start].1, candidates);
 }
 
-fn push_unique(set: &mut StateSet, item: EarleyItem) {
+fn push_unique<'a>(set: &mut StateSet<'a>, item: EarleyItem<'a>) {
     if !set.contains(&item) {
         set.push(item);
     }
 }
 
-impl EarleyItem {
-    pub fn new(rule: &GrammarRule, start: usize) -> EarleyItem {
+impl<'a> EarleyItem<'a> {
+    pub fn new(rule: &'a GrammarRule, start: usize) -> EarleyItem {
         EarleyItem {
-            rule: rule.clone(), start, current: 0
+            rule, start, current: 0
         }
     }
 
@@ -95,6 +95,6 @@ impl EarleyItem {
     }
 
     fn advanced(&self) -> EarleyItem {
-        EarleyItem { rule: self.rule.clone(), current: self.current + 1, ..*self }
+        EarleyItem { current: self.current + 1, ..*self }
     }
 }
