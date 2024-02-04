@@ -8,3 +8,4 @@ Todo:
     Program skeleton
     Parser
         Referencify: Rust is fast, but not my Rust (yet)
+            Partially done

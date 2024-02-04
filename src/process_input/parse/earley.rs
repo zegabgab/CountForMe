@@ -1,6 +1,6 @@
-use super::{GrammarRule, Symbol};
+use super::{GrammarRule, Symbol, SyntaxTree};
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 struct EarleyItem<'a> {
     rule: &'a GrammarRule,
     start: usize,
@@ -10,8 +10,27 @@ struct EarleyItem<'a> {
 type StateSet<'a> = Vec<EarleyItem<'a>>;
 type EarleyTable<'a> = Vec<(Option<String>, StateSet<'a>)>;
 
+pub fn earley_parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> Option<SyntaxTree> {
+    let table = earley_table(source, grammar);
+    let target = &grammar.get(0)?.name;
+    construct_tree(&reverse(&table), target)
+}
+
+fn construct_tree(table: &[(Option<String>, Vec<EarleyItem<'_>>)], target: &str) -> Option<SyntaxTree> {
+    todo!()
+}
+
 pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
     let table = earley_table(source, grammar);
+    match table.last() {
+        None => false,
+        Some((_, items)) => {
+            items.iter().any(|item| item.rule.name == grammar[0].name && item.start == 0 && item.next_unparsed() == None)
+        }
+    }
+}
+
+fn recognize(table: &EarleyTable, grammar: &[GrammarRule]) -> bool {
     match table.last() {
         None => false,
         Some((_, items)) => {
@@ -81,6 +100,19 @@ fn push_unique<'a>(set: &mut StateSet<'a>, item: EarleyItem<'a>) {
     if !set.contains(&item) {
         set.push(item);
     }
+}
+
+fn reverse<'a>(table: &EarleyTable<'a>) -> EarleyTable<'a> {
+    let mut result = vec![(None, Vec::new()); table.len()];
+    for (i, set) in table.iter().enumerate() {
+        result[i].0 = set.0.clone();
+        for item in &set.1 {
+            if item.next_unparsed() == None {
+                result[item.start].1.push(EarleyItem { start: i, ..*item })
+            }
+        }
+    }
+    result
 }
 
 impl<'a> EarleyItem<'a> {
