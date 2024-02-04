@@ -20,7 +20,7 @@ pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[Grammar
     }
 }
 
-fn earley_table(mut source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> EarleyTable {
+fn earley_table<'a>(mut source: impl Iterator<Item = String>, grammar: &'a [GrammarRule]) -> EarleyTable<'a> {
     let token = source.next();
     let mut s = EarleyTable::new();
     if token == None || grammar.is_empty() { return s; }
@@ -60,13 +60,13 @@ fn scan(s: &mut [(Option<String>, Vec<EarleyItem>)], symbol: String, i: usize, j
     }
 }
 
-fn predict(s: &mut [(Option<String>, Vec<EarleyItem>)], symbol: String, i: usize, grammar: &[GrammarRule]) {
+fn predict<'a>(s: &mut [(Option<String>, Vec<EarleyItem<'a>>)], symbol: String, i: usize, grammar: &'a [GrammarRule]) {
     for rule in grammar.iter().filter(|r| r.name == symbol) {
         push_unique(&mut s[i].1, EarleyItem::new(rule, i));
     }
 }
 
-fn complete(s: &mut [(Option<String>, Vec<EarleyItem>)], i: usize, j: usize) {
+fn complete<'a>(s: &mut [(Option<String>, Vec<EarleyItem<'a>>)], i: usize, j: usize) {
     let start = s[i].1[j].start;
     let candidates = std::mem::take(&mut s[start].1);
     let name = s[i].1[j].rule.name.clone();
@@ -94,7 +94,7 @@ impl<'a> EarleyItem<'a> {
         self.rule.components.get(self.current).cloned()
     }
 
-    fn advanced(&self) -> EarleyItem {
+    fn advanced(&self) -> EarleyItem<'a> {
         EarleyItem { current: self.current + 1, ..*self }
     }
 }
