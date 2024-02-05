@@ -38,7 +38,7 @@ pub fn process(input: &mut impl std::io::BufRead, running: &mut bool) -> Result<
     let tree = parse(lexer, &grammar);
     match tree {
         None => println!("no banana"),
-        Some(tree) => println!("{tree}"),
+        Some(tree) => println!("{}", tree),
     }
     Ok(())
 }

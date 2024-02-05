@@ -78,25 +78,6 @@ fn subdivide_continue(table: &[(Option<String>, Vec<EarleyItem<'_>>)], symbols: 
     }
 }
 
-pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
-    let table = earley_table(source, grammar);
-    match table.last() {
-        None => false,
-        Some((_, items)) => {
-            items.iter().any(|item| item.rule.name == grammar[0].name && item.start == 0 && item.next_unparsed() == None)
-        }
-    }
-}
-
-fn recognize(table: &EarleyTable, grammar: &[GrammarRule]) -> bool {
-    match table.last() {
-        None => false,
-        Some((_, items)) => {
-            items.iter().any(|item| item.rule.name == grammar[0].name && item.start == 0 && item.next_unparsed() == None)
-        }
-    }
-}
-
 fn earley_table<'a>(mut source: impl Iterator<Item = String>, grammar: &'a [GrammarRule]) -> EarleyTable<'a> {
     let token = source.next();
     let mut s = EarleyTable::new();
@@ -170,7 +151,7 @@ fn reverse<'a>(table: &EarleyTable<'a>) -> EarleyTable<'a> {
             }
         }
     }
-    for (token, set) in result.iter_mut() {
+    for (_, set) in result.iter_mut() {
         set.sort_by(|a, b| a.start.cmp(&b.start));
     }
     result
