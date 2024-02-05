@@ -13,11 +13,51 @@ type EarleyTable<'a> = Vec<(Option<String>, StateSet<'a>)>;
 pub fn earley_parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> Option<SyntaxTree> {
     let table = earley_table(source, grammar);
     let target = &grammar.get(0)?.name;
-    construct_tree(&reverse(&table), target)
+    construct_tree(&reverse(&table), target, 0, table.len() - 1)
 }
 
-fn construct_tree(table: &[(Option<String>, Vec<EarleyItem<'_>>)], target: &str) -> Option<SyntaxTree> {
-    todo!()
+fn construct_tree(table: &[(Option<String>, Vec<EarleyItem<'_>>)], target: &str, from: usize, to: usize) -> Option<SyntaxTree> {
+    for item in table[from].1.iter().filter(|item| item.rule.name == target && item.start == to) {
+        let tree = from_item(table, item, from);
+        if let Some(_) = tree { return tree; }
+    }
+    None
+}
+
+fn from_item(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &EarleyItem<'_>, mut from: usize) -> Option<SyntaxTree> {
+    if from >= item.start { return None; }
+    let mut parts = Vec::new();
+    for component in &item.rule.components {
+        let next = match component {
+            Symbol::Terminal(_) => Some(SyntaxTree::new(table[from].0.as_ref().unwrap_or(&"".to_string()))),
+            Symbol::Nonterminal(name) => {
+                let mut partial = None;
+                let to = item.start;
+                for item in table[from].1.iter().filter(|item| item.rule.name == *name && item.start <= to) {
+                    partial = from_item(table, item, from);
+                    if let Some(_) = partial {
+                        break;
+                    }
+                }
+                partial
+            }
+        };
+    }
+    Some(SyntaxTree::with_children(&item.rule.name, parts))
+}
+
+fn subdivide(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &[Symbol], mut from: usize) -> Option<Vec<usize>> {
+    let mut result = vec![0; item.len()];
+    let mut i = 0;
+    if subdivide_continue(table, item, from, &mut result) {
+        Some(result)
+    } else {
+        None
+    }
+}
+
+fn subdivide_continue(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &[Symbol], mut from: usize, previous: &mut [usize]) -> bool {
+    false
 }
 
 pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
@@ -111,6 +151,9 @@ fn reverse<'a>(table: &EarleyTable<'a>) -> EarleyTable<'a> {
                 result[item.start].1.push(EarleyItem { start: i, ..*item })
             }
         }
+    }
+    for (token, set) in result.iter_mut() {
+        set.sort_by(|a, b| a.start.cmp(&b.start));
     }
     result
 }
