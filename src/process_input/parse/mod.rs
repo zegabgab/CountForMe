@@ -1,6 +1,10 @@
-use self::earley::earley_recognize;
+use self::earley::{earley_parse, earley_recognize};
 
 mod earley;
+
+pub fn parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> Option<SyntaxTree> {
+    earley_parse(source, grammar)
+}
 
 pub fn recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
     earley_recognize(source, grammar)

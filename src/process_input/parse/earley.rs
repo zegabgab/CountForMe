@@ -17,47 +17,65 @@ pub fn earley_parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule
 }
 
 fn construct_tree(table: &[(Option<String>, Vec<EarleyItem<'_>>)], target: &str, from: usize, to: usize) -> Option<SyntaxTree> {
-    for item in table[from].1.iter().filter(|item| item.rule.name == target && item.start == to) {
-        let tree = from_item(table, item, from);
-        if let Some(_) = tree { return tree; }
-    }
-    None
+    table[from].1.iter()
+    .filter(|item| item.rule.name == target && item.start == to)
+    .map(|item| from_item(table, item, from, to))
+    .next()?
 }
 
-fn from_item(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &EarleyItem<'_>, mut from: usize) -> Option<SyntaxTree> {
-    if from >= item.start { return None; }
-    let mut parts = Vec::new();
-    for component in &item.rule.components {
-        let next = match component {
-            Symbol::Terminal(_) => Some(SyntaxTree::new(table[from].0.as_ref().unwrap_or(&"".to_string()))),
-            Symbol::Nonterminal(name) => {
-                let mut partial = None;
-                let to = item.start;
-                for item in table[from].1.iter().filter(|item| item.rule.name == *name && item.start <= to) {
-                    partial = from_item(table, item, from);
-                    if let Some(_) = partial {
-                        break;
-                    }
-                }
-                partial
-            }
+fn from_item(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &EarleyItem<'_>, mut from: usize, to: usize) -> Option<SyntaxTree> {
+    let subdivision = subdivide(table, item, from, to)?;
+    let mut vec = Vec::new();
+    let name = &item.rule.name;
+    for i in 0..subdivision.len() {
+        let tree = match item.rule.components[i] {
+            Symbol::Terminal(_) => SyntaxTree::new(table[from].0.as_ref()?),
+            Symbol::Nonterminal(_) => {
+                let next_item = table[from].1.iter()
+                .filter(|it| item.rule.components[i].matches(&it.rule.name) && it.start == subdivision[i])
+                .next()?;
+                from_item(table, next_item, from, subdivision[i])?
+            },
         };
+        from = subdivision[i];
+        vec.push(tree);
     }
-    Some(SyntaxTree::with_children(&item.rule.name, parts))
+    Some(SyntaxTree::with_children(name, vec))
 }
 
-fn subdivide(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &[Symbol], mut from: usize) -> Option<Vec<usize>> {
-    let mut result = vec![0; item.len()];
-    let mut i = 0;
-    if subdivide_continue(table, item, from, &mut result) {
-        Some(result)
-    } else {
-        None
-    }
+fn subdivide(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &EarleyItem<'_>, from: usize, to: usize) -> Option<Vec<usize>> {
+    let mut result = subdivide_continue(table, &item.rule.components, from, to)?;
+    result.reverse();
+    Some(result)
 }
 
-fn subdivide_continue(table: &[(Option<String>, Vec<EarleyItem<'_>>)], item: &[Symbol], mut from: usize, previous: &mut [usize]) -> bool {
-    false
+fn subdivide_continue(table: &[(Option<String>, Vec<EarleyItem<'_>>)], symbols: &[Symbol], from: usize, to: usize) -> Option<Vec<usize>> {
+    match (from.cmp(&to), symbols.get(0)) {
+        (std::cmp::Ordering::Greater, _) => None,
+        (std::cmp::Ordering::Less, None) => None,
+        (std::cmp::Ordering::Equal, Some(_)) => None,
+        (std::cmp::Ordering::Equal, None) => Some(Vec::new()),
+        (std::cmp::Ordering::Less, Some(symbol)) => {
+            match symbol {
+                Symbol::Terminal(_) => {
+                    if !symbol.matches(&table[from].0.as_ref()?) { return None; }
+                    let mut result = subdivide_continue(table, &symbols[1..], from + 1, to)?;
+                    result.push(from + 1);
+                    Some(result)
+                },
+                Symbol::Nonterminal(_) => {
+                    for item in table[from].1.iter().filter(|i| symbol.matches(&i.rule.name)) {
+                        let result = subdivide_continue(table, &symbols[1..], item.start, to);
+                        if let Some(mut vec) = result {
+                            vec.push(item.start);
+                            return Some(vec);
+                        }
+                    }
+                    None
+                },
+            }
+        },
+    }
 }
 
 pub fn earley_recognize(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> bool {
