@@ -9,21 +9,21 @@ pub fn parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> O
 #[derive(Debug, Clone)]
 pub struct SyntaxTree {
     name: String,
-    children: Vec<Self>
+    children: Vec<Self>,
 }
 
 impl SyntaxTree {
     pub fn new(name: &str) -> SyntaxTree {
         SyntaxTree {
             name: String::from(name),
-            children: Vec::new()
+            children: Vec::new(),
         }
     }
 
     pub fn with_children(name: &str, children: Vec<SyntaxTree>) -> SyntaxTree {
         SyntaxTree {
             name: String::from(name),
-            children
+            children,
         }
     }
 
@@ -36,7 +36,11 @@ impl std::fmt::Display for SyntaxTree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         const INDENT: &str = "  ";
 
-        fn format(s: &SyntaxTree, f: &mut std::fmt::Formatter<'_>, depth: usize) -> std::fmt::Result {
+        fn format(
+            s: &SyntaxTree,
+            f: &mut std::fmt::Formatter<'_>,
+            depth: usize,
+        ) -> std::fmt::Result {
             for _ in 0..depth {
                 write!(f, "{INDENT}")?;
             }
@@ -77,7 +81,7 @@ impl std::fmt::Display for SyntaxTree {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Symbol {
     Terminal(String),
-    Nonterminal(String)
+    Nonterminal(String),
 }
 
 impl Symbol {
@@ -92,13 +96,14 @@ impl Symbol {
 #[derive(PartialEq, Eq, Clone)]
 pub struct GrammarRule {
     pub name: String,
-    pub components: Vec<Symbol>
+    pub components: Vec<Symbol>,
 }
 
 impl GrammarRule {
     pub fn new(name: &str, components: &[Symbol]) -> GrammarRule {
         GrammarRule {
-            name: name.to_string(), components: components.to_vec()
+            name: name.to_string(),
+            components: components.to_vec(),
         }
     }
 }

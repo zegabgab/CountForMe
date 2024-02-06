@@ -2,7 +2,7 @@
 enum CharType {
     Whitespace,
     Word,
-    Special
+    Special,
 }
 
 fn kind(character: &char) -> CharType {
@@ -11,18 +11,22 @@ fn kind(character: &char) -> CharType {
     }
     match character {
         'a'..='z' | 'A'..='Z' | '0'..='9' => CharType::Word,
-        _ => CharType::Special
+        _ => CharType::Special,
     }
 }
 
 pub struct Lexer<T>
-where T: Iterator<Item = char> {
-    source: std::iter::Peekable<T>
+where
+    T: Iterator<Item = char>,
+{
+    source: std::iter::Peekable<T>,
 }
 
 impl<T: std::iter::Iterator<Item = char>> Lexer<T> {
     pub fn new(source: T) -> Lexer<T> {
-        Lexer { source: source.peekable() }
+        Lexer {
+            source: source.peekable(),
+        }
     }
 }
 
@@ -43,7 +47,7 @@ impl<T: std::iter::Iterator<Item = char>> Iterator for Lexer<T> {
         }
         match result.len() {
             0 => None,
-            _ => Some(result)
+            _ => Some(result),
         }
     }
 }
@@ -57,7 +61,7 @@ fn eject(c: char, peek: Option<&char>) -> bool {
         (CharType::Whitespace, _) => false,
         (CharType::Word, CharType::Word) => false,
         (CharType::Word, _) => true,
-        (CharType::Special, _) => true
+        (CharType::Special, _) => true,
     }
 }
 
