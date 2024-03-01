@@ -8,12 +8,12 @@ fn main() {
 
 mod main_args {
     pub struct Args {
-        reader: Box<dyn std::io::BufRead>
+        reader: Box<dyn std::io::BufRead>,
     }
 
     pub fn parse_args() -> Args {
         Args {
-            reader: Box::new(std::io::stdin().lock())
+            reader: Box::new(std::io::stdin().lock()),
         }
     }
 
