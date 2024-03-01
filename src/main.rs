@@ -1,10 +1,8 @@
-mod process_input;
-
 fn main() {
     let mut args = main_args::parse_args();
     let mut running = true;
     while running {
-        let _ = process_input::process(args.reader(), &mut running);
+        let _ = count_for_me::process_input::process(args.reader(), &mut running);
     }
 }
 
