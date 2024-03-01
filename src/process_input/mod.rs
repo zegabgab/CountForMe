@@ -1,5 +1,5 @@
 mod lexer;
-mod parse;
+pub mod parse;
 
 use self::parse::{Symbol, SyntaxTree};
 

@@ -1,5 +1,6 @@
 use self::earley::earley_parse;
 
+pub mod scan;
 mod earley;
 
 pub fn parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> Option<SyntaxTree> {
