@@ -86,10 +86,26 @@ pub enum Symbol {
 }
 
 impl Symbol {
-    fn matches(&self, token: &str) -> bool {
+    pub fn matches(&self, token: &str) -> bool {
         match self {
             Symbol::Terminal(s) => s == token,
             Symbol::Nonterminal(s) => s == token,
+        }
+    }
+
+    pub fn terminal(token: impl AsRef<str>) -> Symbol {
+        Symbol::Terminal(token.as_ref().to_owned())
+    }
+
+    pub fn nonterminal(token: impl AsRef<str>) -> Symbol {
+        Symbol::Nonterminal(token.as_ref().to_owned())
+    }
+
+    pub fn new(token: impl AsRef<str>, is_terminal: bool) -> Symbol {
+        if is_terminal {
+            Self::terminal(token)
+        } else {
+            Self::nonterminal(token)
         }
     }
 }
