@@ -15,6 +15,15 @@ fn kind(character: &char) -> CharType {
     }
 }
 
+/// Character tokenizer.
+/// 
+/// # Example
+/// 
+/// ```
+/// let lexer = Lexer::new("some thing".into_iter());
+/// 
+/// assert_eq!(lexer.next(), "some");
+/// ```
 pub struct Lexer<T>
 where T: Iterator<Item = char> {
     source: std::iter::Peekable<T>
