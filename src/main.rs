@@ -1,27 +1,22 @@
-mod process_input;
-
 fn main() {
     let mut args = main_args::parse_args();
     let mut running = true;
     while running {
-        let _ = process_input::process(args.reader(), &mut running);
+        let _ = (args.action)(&mut running);
     }
 }
 
 mod main_args {
+    type MainAction = dyn FnMut(&mut bool) -> Result<(), ()>;
+
     pub struct Args {
-        reader: Box<dyn std::io::BufRead>
+        pub action: Box<MainAction>,
     }
 
     pub fn parse_args() -> Args {
         Args {
-            reader: Box::new(std::io::stdin().lock())
-        }
-    }
-
-    impl Args {
-        pub fn reader(&mut self) -> &mut impl std::io::BufRead {
-            &mut self.reader
+            action: Box::new(
+                |running| count_for_me::process_input::process(&mut std::io::stdin().lock(), running))
         }
     }
 }
