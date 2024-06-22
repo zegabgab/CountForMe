@@ -6,13 +6,13 @@ pub enum ResponseType {
 }
 
 pub struct Response {
-    type: ResponseType
+    kind: ResponseType
 }
 
 pub struct Shell;
 
 impl Shell {
-    pub fn process(&mut self, &[u8]) -> Response {
+    pub fn process(&mut self, _: &[u8]) -> Response {
         todo!()
     }
 }
