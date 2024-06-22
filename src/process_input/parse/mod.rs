@@ -1,7 +1,7 @@
 use self::earley::earley_parse;
 
-pub mod scan;
 mod earley;
+pub mod scan;
 
 pub fn parse(source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> Option<SyntaxTree> {
     earley_parse(source, grammar)
