@@ -15,4 +15,8 @@ impl Shell {
     pub fn process(&mut self, _: &[u8]) -> Response {
         todo!()
     }
+    
+    pub fn execute(self) -> Result<(), &'static str> {
+        todo!()
+    }
 }
