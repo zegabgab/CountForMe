@@ -15,7 +15,7 @@ pub fn earley_parse(
     grammar: &[GrammarRule],
 ) -> Option<SyntaxTree> {
     let table = earley_table(source, grammar);
-    let target = &grammar.get(0)?.name;
+    let target = &grammar.first()?.name;
     let table = reverse(&table);
     if recognize(&table, target) {
         construct_tree(&reverse(&table), target, 0, table.len() - 1)
@@ -40,7 +40,7 @@ fn construct_tree(
 
 fn recognize(table: &[(Option<String>, Vec<EarleyItem<'_>>)], target: &str) -> bool {
     table
-        .get(0)
+        .first()
         .unwrap_or(&(None, Vec::new()))
         .1
         .iter()
@@ -56,21 +56,20 @@ fn from_item(
     let subdivision = subdivide(table, item, from, to)?;
     let mut vec = Vec::new();
     let name = &item.rule.name;
-    for i in 0..subdivision.len() {
+    for (i, &element) in subdivision.iter().enumerate() {
         let tree = match item.rule.components[i] {
             Symbol::Terminal(_) => SyntaxTree::new(table[from].0.as_ref()?),
             Symbol::Nonterminal(_) => {
                 let next_item = table[from]
                     .1
                     .iter()
-                    .filter(|it| {
-                        item.rule.components[i].matches(&it.rule.name) && it.start == subdivision[i]
-                    })
-                    .next()?;
-                from_item(table, next_item, from, subdivision[i])?
+                    .find(|it| {
+                        item.rule.components[i].matches(&it.rule.name) && it.start == element
+                    })?;
+                from_item(table, next_item, from, element)?
             }
         };
-        from = subdivision[i];
+        from = element;
         vec.push(tree);
     }
     Some(SyntaxTree::with_children(name, vec))
@@ -93,14 +92,14 @@ fn subdivide_continue(
     from: usize,
     to: usize,
 ) -> Option<Vec<usize>> {
-    match (from.cmp(&to), symbols.get(0)) {
+    match (from.cmp(&to), symbols.first()) {
         (std::cmp::Ordering::Greater, _) => None,
         (std::cmp::Ordering::Less, None) => None,
         (std::cmp::Ordering::Equal, Some(_)) => None,
         (std::cmp::Ordering::Equal, None) => Some(Vec::new()),
         (std::cmp::Ordering::Less, Some(symbol)) => match symbol {
             Symbol::Terminal(_) => {
-                if !symbol.matches(&table[from].0.as_ref()?) {
+                if !symbol.matches(table[from].0.as_ref()?) {
                     return None;
                 }
                 let mut result = subdivide_continue(table, &symbols[1..], from + 1, to)?;
@@ -128,7 +127,7 @@ fn subdivide_continue(
 fn earley_table(mut source: impl Iterator<Item = String>, grammar: &[GrammarRule]) -> EarleyTable {
     let token = source.next();
     let mut s = EarleyTable::new();
-    if token == None || grammar.is_empty() {
+    if token.is_none() || grammar.is_empty() {
         return s;
     }
     s.push((
@@ -144,7 +143,7 @@ fn earley_table(mut source: impl Iterator<Item = String>, grammar: &[GrammarRule
         if i >= s.len() {
             break;
         }
-        if s[i].0 != None {
+        if s[i].0.is_some() {
             s.push((source.next(), StateSet::new()));
         }
         for j in 0.. {
@@ -163,9 +162,9 @@ fn earley_table(mut source: impl Iterator<Item = String>, grammar: &[GrammarRule
 
 fn scan(s: &mut [(Option<String>, Vec<EarleyItem>)], symbol: String, i: usize, j: usize) {
     match &s[i].0 {
-        None => return,
+        None => (),
         Some(token) => {
-            if Symbol::Terminal(symbol).matches(&token) {
+            if Symbol::Terminal(symbol).matches(token) {
                 let item = s[i].1[j].advanced();
                 push_unique(&mut s[i + 1].1, item);
             }
@@ -184,7 +183,7 @@ fn predict<'a>(
     }
 }
 
-fn complete<'a>(s: &mut [(Option<String>, Vec<EarleyItem<'a>>)], i: usize, j: usize) {
+fn complete(s: &mut [(Option<String>, Vec<EarleyItem<'_>>)], i: usize, j: usize) {
     let start = s[i].1[j].start;
     let candidates = std::mem::take(&mut s[start].1);
     let name = s[i].1[j].rule.name.clone();
@@ -208,7 +207,7 @@ fn reverse<'a>(table: &EarleyTable<'a>) -> EarleyTable<'a> {
     for (i, set) in table.iter().enumerate() {
         result[i].0 = set.0.clone();
         for item in &set.1 {
-            if item.next_unparsed() == None {
+            if item.next_unparsed().is_none() {
                 result[item.start].1.push(EarleyItem { start: i, ..*item })
             }
         }

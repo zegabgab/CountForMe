@@ -46,14 +46,14 @@ impl std::fmt::Display for SyntaxTree {
                 write!(f, "{INDENT}")?;
             }
             write!(f, "{}", s.name)?;
-            let first = s.children.get(0);
+            let first = s.children.first();
             match first {
                 None => Ok(()),
                 Some(child) => {
-                    write!(f, ":\n")?;
+                    writeln!(f, ":")?;
                     format(child, f, depth + 1)?;
                     for child in s.children.iter().skip(1) {
-                        write!(f, "\n")?;
+                        writeln!(f)?;
                         format(child, f, depth + 1)?;
                     }
                     Ok(())
