@@ -1,22 +1,13 @@
-fn main() {
-    let mut args = main_args::parse_args();
-    let mut running = true;
-    while running {
-        let _ = (args.action)(&mut running);
-    }
-}
+use count_for_me::{Response, Shell};
 
-mod main_args {
-    type MainAction = dyn FnMut(&mut bool) -> Result<(), ()>;
-
-    pub struct Args {
-        pub action: Box<MainAction>,
-    }
-
-    pub fn parse_args() -> Args {
-        Args {
-            action: Box::new(
-                |running| count_for_me::process_input::process(&mut std::io::stdin().lock(), running))
+fn main() -> Result<(), String> {
+    let shell = Shell::new(|line| {
+        println!("{}", line.to_ascii_uppercase());
+        if line == "quit" {
+            Response::terminating()
+        } else {
+            Response::continuing()
         }
-    }
+    });
+    shell.execute()
 }
